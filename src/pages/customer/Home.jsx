@@ -15,7 +15,7 @@ export default function Home() {
       <ExclusiveDealCard />
       <PopularCategories />
       <PopularRestaurants />
-      {/* <PersonalisedSection /> */}
+      <PersonalisedSection />
       <Benefits />
       <AboutUs />
       <StatsSection />

@@ -53,7 +53,8 @@ function PopularRestaurants() {
           {restaurants.map((restaurant) => (
             <div
               key={restaurant.id}
-className="flex-shrink-0 w-[125px] sm:w-[145px] md:w-[180px]"            >
+              className="flex-shrink-0 w-[125px] sm:w-[145px] md:w-[180px]"
+            >
               <RestaurantCard
                 image={restaurant.image}
                 title={restaurant.title}
