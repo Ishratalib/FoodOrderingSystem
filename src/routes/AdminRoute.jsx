@@ -1,15 +1,17 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useSelector } from "react-redux";
-const  AdminRoute = () => {
-    const { user } = useSelector((state) => state.auth);
+import { useAuth } from "../hooks/useAuth";
 
-    if(!user){
-        return <Navigate to="/login" replace />;
-    }
-    if(!user.is_admin){
-        return <Navigate to="/" replace />;
-    }
-    return <Outlet />
-}
+const AdminRoute = () => {
+  const { isAuthenticated, isAdmin } = useAuth();
 
-export default AdminRoute
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!isAdmin) {
+    return <Navigate to="/" replace />;
+  }
+  return <Outlet />;
+};
+
+export default AdminRoute;

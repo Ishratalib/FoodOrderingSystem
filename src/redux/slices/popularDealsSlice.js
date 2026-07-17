@@ -1,14 +1,14 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { BASE_URL, ANALYTICS_ENDPOINTS } from "../../api/endpoints";
 
-export const fetchRevenueOverTime = createAsyncThunk(
-  "revenueOverTime/fetchRevenueOverTime",
-  async (range = "daily", { getState, rejectWithValue }) => {
+export const fetchPopularDeals = createAsyncThunk(
+  "popularDeals/fetchPopularDeals",
+  async (_, { getState, rejectWithValue }) => {
     try {
       const token = getState().auth.accessToken;
 
       const res = await fetch(
-        `${BASE_URL}${ANALYTICS_ENDPOINTS.REVENUE_OVER_TIME}?range=${range}`,
+        `${BASE_URL}${ANALYTICS_ENDPOINTS.POPULAR_DEALS}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -22,19 +22,18 @@ export const fetchRevenueOverTime = createAsyncThunk(
         return rejectWithValue(json);
       }
 
-      return json;
+      return json.data;
     } catch (error) {
-      return rejectWithValue("Failed to fetch revenue");
+      return rejectWithValue("Failed to fetch popular deals");
     }
   }
 );
 
-const revenueOverTimeSlice = createSlice({
-  name: "revenueOverTime",
+const popularDealsSlice = createSlice({
+  name: "popularDeals",
 
   initialState: {
-    revenue: [],
-    range: "daily",
+    popularDeals: [],
     loading: false,
     error: null,
   },
@@ -43,22 +42,21 @@ const revenueOverTimeSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-
-      .addCase(fetchRevenueOverTime.pending, (state) => {
+      .addCase(fetchPopularDeals.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
 
-      .addCase(fetchRevenueOverTime.fulfilled, (state, action) => {
+      .addCase(fetchPopularDeals.fulfilled, (state, action) => {
         state.loading = false;
-        state.revenue = action.payload.data;
-        state.range = action.payload.range;
+        state.popularDeals = action.payload;
       })
 
-      .addCase(fetchRevenueOverTime.rejected, (state, action) => {
+      .addCase(fetchPopularDeals.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
   },
 });
 
-export default revenueOverTimeSlice.reducer;
+export default popularDealsSlice.reducer;

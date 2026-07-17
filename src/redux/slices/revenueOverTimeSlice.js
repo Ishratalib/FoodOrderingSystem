@@ -13,7 +13,7 @@ export const fetchRevenueOverTime = createAsyncThunk(
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       const json = await res.json();
@@ -24,28 +24,30 @@ export const fetchRevenueOverTime = createAsyncThunk(
 
       return json;
     } catch (error) {
-      return rejectWithValue("Failed to fetch revenue");
+      return rejectWithValue("Failed to fetch revenue over time");
     }
-  }
+  },
 );
+
+const initialState = {
+  revenue: [],
+  range: "daily",
+  loading: false,
+  error: null,
+};
 
 const revenueOverTimeSlice = createSlice({
   name: "revenueOverTime",
 
-  initialState: {
-    revenue: [],
-    range: "daily",
-    loading: false,
-    error: null,
-  },
+  initialState,
 
   reducers: {},
 
   extraReducers: (builder) => {
     builder
-
       .addCase(fetchRevenueOverTime.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
 
       .addCase(fetchRevenueOverTime.fulfilled, (state, action) => {

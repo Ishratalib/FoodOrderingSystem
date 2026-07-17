@@ -4,14 +4,20 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./index.css";
 import App from "./App.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
+import { ToastProvider } from "./context/ToastContext.jsx"; // 👈 naya import
 import { Provider } from "react-redux";
 import { store } from "./redux/store.js";
+
 createRoot(document.getElementById("root")).render(
   <Provider store={store}>
     <ThemeProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <ToastProvider>
+        {" "}
+        {/* 👈 ye wrap add kiya */}
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </ToastProvider>
     </ThemeProvider>
   </Provider>,
 );
