@@ -1,139 +1,107 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useTheme } from "../../context/ThemeContext";
-import { HiOutlineClipboardList } from "react-icons/hi";
+
+import { Package } from "lucide-react";
+import OrderSearch from "../../components/adminOrders/OrderSearch";
+import OrdersTable from "../../components/adminOrders/OrdersTable";
+import useDebounce from "../../hooks/useDebounce";
+import OrderStatusFilter from "../../components/adminOrders/OrderStatusFilter";
+import OrderDetailModal from "../../components/adminOrders/OrderDetailModal";
+import {
+  fetchAllOrders,
+  updateOrderStatus,
+} from "../../redux/slices/orderAdminSlice";
 
 const ManageOrders = () => {
+  const dispatch = useDispatch();
+
   const { theme } = useTheme();
   const isDark = theme === "dark";
+const [selectedOrder, setSelectedOrder] = useState(null);
+  const [search, setSearch] = useState("");
 
-  // TODO: backend integration -> dispatch(fetchOrders()) from orderSlice on mount (useEffect)
-  const [orders, setOrders] = useState([
-    {
-      id: "#ORD1042",
-      customer: "Zara Ahmed",
-      items: 3,
-      total: "£24.50",
-      status: "Pending",
-    },
-    {
-      id: "#ORD1041",
-      customer: "Ali Raza",
-      items: 2,
-      total: "£12.00",
-      status: "Delivered",
-    },
-    {
-      id: "#ORD1040",
-      customer: "Sana Khan",
-      items: 5,
-      total: "£31.75",
-      status: "Preparing",
-    },
-    {
-      id: "#ORD1039",
-      customer: "Bilal Tariq",
-      items: 1,
-      total: "£8.20",
-      status: "Pending",
-    },
-  ]);
+  const debouncedSearch = useDebounce(search, 500);
+const [selectedStatus, setSelectedStatus] = useState("all");
+  const { orders, loading, error, updatingOrderId } = useSelector(
+    (state) => state.orderAdmin
+  );
 
-  const statusOptions = ["Pending", "Preparing", "Delivered", "Cancelled"];
+  useEffect(() => {
+    dispatch(fetchAllOrders());
+  }, [dispatch]);
 
-  const statusColor = {
-    Pending: "bg-yellow-100 text-yellow-700",
-    Preparing: "bg-blue-100 text-blue-700",
-    Delivered: "bg-green-100 text-green-700",
-    Cancelled: "bg-red-100 text-red-700",
+const filteredOrders = orders.filter((order) => {
+  const keyword = debouncedSearch.toLowerCase();
+
+  const matchesSearch =
+    String(order.order_id).includes(keyword) ||
+    order.restaurant?.name?.toLowerCase().includes(keyword) ||
+    order.current_status?.toLowerCase().includes(keyword);
+
+  const matchesStatus =
+    selectedStatus === "all" ||
+    order.current_status === selectedStatus;
+
+  return matchesSearch && matchesStatus;
+});
+
+  const handleStatusChange = (orderId, status) => {
+    dispatch(updateOrderStatus({ orderId, status }));
   };
 
-  const handleStatusChange = (orderId, newStatus) => {
-    // TODO: backend integration -> dispatch(updateOrderStatus({ orderId, status: newStatus }))
-    setOrders((prev) =>
-      prev.map((order) =>
-        order.id === orderId ? { ...order, status: newStatus } : order,
-      ),
+  if (loading) {
+    return (
+      <p className={isDark ? "text-white" : "text-gray-900"}>
+        Loading...
+      </p>
     );
-  };
+  }
+
+  if (error) {
+    return <p className="text-red-500">Failed to load orders.</p>;
+  }
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-full flex items-center justify-center bg-[#FC8A06]">
-          <HiOutlineClipboardList className="w-5 h-5 text-white" />
-        </div>
-        <h1
-          className={`text-xl sm:text-2xl font-extrabold ${isDark ? "text-white" : "text-gray-900"}`}
-        >
-          Manage Orders
-        </h1>
-      </div>
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        {/* Left */}
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-[#FC8A06] flex items-center justify-center">
+            <Package size={20} className="text-white" />
+          </div>
 
-      <div
-        className={`rounded-2xl p-4 sm:p-6 shadow-sm transition-colors duration-300 ${
-          isDark ? "bg-[#0b1020] border border-white/10" : "bg-white"
-        }`}
-      >
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs sm:text-sm min-w-[560px]">
-            <thead>
-              <tr
-                className={`text-left border-b ${isDark ? "border-white/10 text-gray-400" : "border-gray-200 text-gray-500"}`}
-              >
-                <th className="pb-3 font-medium">Order ID</th>
-                <th className="pb-3 font-medium">Customer</th>
-                <th className="pb-3 font-medium">Items</th>
-                <th className="pb-3 font-medium">Total</th>
-                <th className="pb-3 font-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => (
-                <tr
-                  key={order.id}
-                  className={`border-b last:border-0 ${isDark ? "border-white/5" : "border-gray-100"}`}
-                >
-                  <td
-                    className={`py-3 font-medium ${isDark ? "text-white" : "text-gray-900"}`}
-                  >
-                    {order.id}
-                  </td>
-                  <td
-                    className={`py-3 ${isDark ? "text-gray-300" : "text-gray-700"}`}
-                  >
-                    {order.customer}
-                  </td>
-                  <td
-                    className={`py-3 ${isDark ? "text-gray-300" : "text-gray-700"}`}
-                  >
-                    {order.items}
-                  </td>
-                  <td
-                    className={`py-3 ${isDark ? "text-gray-300" : "text-gray-700"}`}
-                  >
-                    {order.total}
-                  </td>
-                  <td className="py-3">
-                    <select
-                      value={order.status}
-                      onChange={(e) =>
-                        handleStatusChange(order.id, e.target.value)
-                      }
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium outline-none cursor-pointer ${statusColor[order.status]}`}
-                    >
-                      {statusOptions.map((opt) => (
-                        <option key={opt} value={opt}>
-                          {opt}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <h1
+            className={`text-2xl font-bold ${
+              isDark ? "text-white" : "text-gray-900"
+            }`}
+          >
+            Manage Orders
+          </h1>
+        </div>
+
+        {/* Right */}
+        <div className="w-full md:w-[350px]">
+          <OrderSearch value={search} onChange={setSearch} />
         </div>
       </div>
+<OrderStatusFilter
+  selectedStatus={selectedStatus}
+  setSelectedStatus={setSelectedStatus}
+  orders={orders}
+/>
+      {/* Orders Table */}
+      <OrdersTable
+        orders={filteredOrders}
+        updatingOrderId={updatingOrderId}
+        handleStatusChange={handleStatusChange}
+         onView={setSelectedOrder}
+      />
+      <OrderDetailModal
+    order={selectedOrder}
+    onClose={() => setSelectedOrder(null)}
+/>
     </div>
   );
 };

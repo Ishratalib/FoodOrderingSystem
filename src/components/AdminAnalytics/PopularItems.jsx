@@ -7,16 +7,16 @@ const PopularItems = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const { popularItems, loading, error } = useSelector(
-    (state) => state.popularItems
+  const { popularItems, popularItemsLoading, popularItemsError } = useSelector(
+    (state) => state.adminAnalytics
   );
 
-  if (loading) {
+  if (popularItemsLoading) {
     return <p className="text-center mt-4">Loading Popular Items...</p>;
   }
 
-  if (error) {
-    return <p className="text-center mt-4 text-red-500">{error}</p>;
+  if (popularItemsError) {
+    return <p className="text-center mt-4 text-red-500">{popularItemsError}</p>;
   }
 
   return (

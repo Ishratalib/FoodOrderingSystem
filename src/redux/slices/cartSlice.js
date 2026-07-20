@@ -1,64 +1,219 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { BASE_URL, ANALYTICS_ENDPOINTS } from "../../api/endpoints";
+import { BASE_URL } from "../../api/api";
+import { ENDPOINTS } from "../../api/endpoints";
 
-export const fetchRevenueOverTime = createAsyncThunk(
-  "revenueOverTime/fetchRevenueOverTime",
-  async (range = "daily", { getState, rejectWithValue }) => {
+const initialState = {
+  cart: null,
+  items: [],
+  totalPrice: 0,
+  loading: false,
+  error: null,
+};
+export const fetchCart = createAsyncThunk(
+  "cart/fetchCart",
+  async (_, { rejectWithValue, getState }) => {
     try {
       const token = getState().auth.accessToken;
 
-      const res = await fetch(
-        `${BASE_URL}${ANALYTICS_ENDPOINTS.REVENUE_OVER_TIME}?range=${range}`,
+      const response = await fetch(`${BASE_URL}${ENDPOINTS.GET_CART}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return rejectWithValue(data);
+      }
+
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
+export const addToCart = createAsyncThunk(
+  "cart/addToCart",
+  async ({ menu_item_id, deal_id }, { rejectWithValue, getState }) => {
+    
+    try {
+      const token = getState().auth.accessToken;
+      const response = await fetch(`${BASE_URL}${ENDPOINTS.ADD_TO_CART}`, {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+
+        body: JSON.stringify({
+          menu_item_id,
+          deal_id,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return rejectWithValue(data);
+      }
+
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
+export const updateCartItem = createAsyncThunk(
+  "cart/updateCartItem",
+  async ({ itemId, quantity }, { rejectWithValue, getState }) => {
+    
+    try {
+      const token = getState().auth.accessToken;
+      const response = await fetch(
+        `${BASE_URL}${ENDPOINTS.UPDATE_CART_ITEM}${itemId}/`,
         {
+          method: "PATCH",
+
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+
+          body: JSON.stringify({
+            quantity,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return rejectWithValue(data);
+      }
+
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
+export const deleteCartItem = createAsyncThunk(
+  "cart/deleteCartItem",
+  async (itemId, { rejectWithValue, getState }) => {
+    
+    try {
+      const token = getState().auth.accessToken;
+      const response = await fetch(
+        `${BASE_URL}${ENDPOINTS.DELETE_CART_ITEM}${itemId}/`,
+        {
+          method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
-      const json = await res.json();
+      const data = await response.json();
 
-      if (!res.ok) {
-        return rejectWithValue(json);
+      if (!response.ok) {
+        return rejectWithValue(data);
       }
 
-      return json;
+      return {
+        itemId,
+        data,
+      };
     } catch (error) {
-      return rejectWithValue("Failed to fetch revenue");
+      return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
-const revenueOverTimeSlice = createSlice({
-  name: "revenueOverTime",
+const cartSlice = createSlice({
+  name: "cart",
 
-  initialState: {
-    revenue: [],
-    range: "daily",
-    loading: false,
-    error: null,
-  },
+  initialState,
 
   reducers: {},
 
   extraReducers: (builder) => {
     builder
 
-      .addCase(fetchRevenueOverTime.pending, (state) => {
+      .addCase(fetchCart.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
 
-      .addCase(fetchRevenueOverTime.fulfilled, (state, action) => {
+      .addCase(fetchCart.fulfilled, (state, action) => {
         state.loading = false;
-        state.revenue = action.payload.data;
-        state.range = action.payload.range;
+
+        state.cart = action.payload.data;
+
+        state.items = action.payload.data.items;
+
+        state.totalPrice = action.payload.data.total_price;
       })
 
-      .addCase(fetchRevenueOverTime.rejected, (state, action) => {
+      .addCase(fetchCart.rejected, (state, action) => {
         state.loading = false;
+
+        state.error = action.payload;
+      })
+
+      .addCase(addToCart.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+
+      .addCase(addToCart.fulfilled, (state, action) => {
+        state.loading = false;
+
+        state.cart = action.payload.data;
+
+        state.items = action.payload.data.items;
+
+        state.totalPrice = action.payload.data.total_price;
+      })
+
+      .addCase(addToCart.rejected, (state, action) => {
+        state.loading = false;
+
+        state.error = action.payload;
+      })
+
+      .addCase(updateCartItem.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+
+      .addCase(updateCartItem.fulfilled, (state) => {
+        state.loading = false;
+      })
+
+      .addCase(updateCartItem.rejected, (state, action) => {
+        state.loading = false;
+
+        state.error = action.payload;
+      })
+
+      .addCase(deleteCartItem.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+
+      .addCase(deleteCartItem.fulfilled, (state) => {
+        state.loading = false;
+      })
+
+      .addCase(deleteCartItem.rejected, (state, action) => {
+        state.loading = false;
+
         state.error = action.payload;
       });
   },
 });
 
-export default revenueOverTimeSlice.reducer;
+export default cartSlice.reducer;

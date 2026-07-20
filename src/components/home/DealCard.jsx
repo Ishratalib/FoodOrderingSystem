@@ -7,6 +7,7 @@ function DealCard({ image, discount, name }) {
           alt={name}
          className="
     w-full
+    border
     h-[160px]
     sm:h-[200px]
     lg:h-[260px]

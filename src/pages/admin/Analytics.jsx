@@ -2,18 +2,19 @@ import React, { useEffect } from "react";
 import { useTheme } from "../../context/ThemeContext";
 import { useDispatch, useSelector } from "react-redux";
 
-import { fetchOverview } from "../../redux/slices/analyticsSlice";
-import { fetchPopularItems } from "../../redux/slices/popularItemsSlice";
-import { fetchOrdersByStatus } from "../../redux/slices/ordersByStatusSlice";
-import { fetchPopularDeals } from "../../redux/slices/popularDealsSlice";
-import { fetchRevenueByRestaurant } from "../../redux/slices/revenueByRestaurantSlice";
-import { fetchRevenueOverTime } from "../../redux/slices/revenueOverTimeSlice";
-
+import {
+  fetchOverview,
+  fetchPopularItems,
+  fetchOrdersByStatus,
+  fetchPopularDeals,
+  fetchRevenueByRestaurant,
+  fetchRevenueOverTime,
+} from "../../redux/slices/adminAnalyticsSlice";
 import { HiOutlineChartBar } from "react-icons/hi";
 
 import SummaryCards from "../../components/AdminAnalytics/SummaryCards";
 import PopularItems from "../../components/AdminAnalytics/PopularItems";
-import OrdersByStatus from "../../components/AdminAnalytics/OrdersByStatus";
+import OrdersByStatusChart from "../../components/adminDashboard/OrdersByStatusChart";
 import PopularDeals from "../../components/AdminAnalytics/PopularDeals";
 import RevenueByRestaurant from "../../components/AdminAnalytics/RevenueByRestaurant";
 import RevenueOverTime from "../../components/AdminAnalytics/RevenueOverTime";
@@ -24,36 +25,27 @@ const Analytics = () => {
 
   const dispatch = useDispatch();
 
-  // Overview
   const {
     overview,
-    loading: overviewLoading,
-    error: overviewError,
-  } = useSelector((state) => state.analytics);
 
-  // Popular Items
-  const { loading: popularItemsLoading, error: popularItemsError } =
-    useSelector((state) => state.popularItems);
+    overviewLoading,
+    overviewError,
 
-  // Order Status
-  const { loading: ordersLoading, error: ordersError } = useSelector(
-    (state) => state.ordersByStatus,
-  );
+    popularItemsLoading,
+    popularItemsError,
 
-  // Popular Deals
-  const { loading: dealsLoading, error: dealsError } = useSelector(
-    (state) => state.popularDeals,
-  );
+    ordersLoading,
+    ordersError,
 
-  // Revenue By Restaurant
-  const { loading: revenueRestaurantLoading, error: revenueRestaurantError } =
-    useSelector((state) => state.revenueByRestaurant);
+    dealsLoading,
+    dealsError,
 
-  //revenueOverTime
-  const { loading: revenueLoading, error: revenueError } = useSelector(
-    (state) => state.revenueOverTime,
-  );
+    revenueRestaurantLoading,
+    revenueRestaurantError,
 
+    revenueLoading,
+    revenueError,
+  } = useSelector((state) => state.adminAnalytics);
   useEffect(() => {
     dispatch(fetchOverview());
     dispatch(fetchPopularItems());
@@ -104,13 +96,13 @@ const Analytics = () => {
         <SummaryCards overview={overview} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <PopularItems />
-          <OrdersByStatus />
+          <OrdersByStatusChart />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <PopularDeals />
           <RevenueByRestaurant />
-          
-          <div className="mt-6">
+
+          <div className="col-span-1 md:col-span-2 mt-6">
             <RevenueOverTime />
           </div>
         </div>

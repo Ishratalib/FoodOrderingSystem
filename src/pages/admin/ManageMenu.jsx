@@ -6,6 +6,7 @@ import {
   HiOutlinePlus,
   HiOutlinePencil,
   HiOutlineTrash,
+  HiOutlineEye,
 } from "react-icons/hi";
 import {
   fetchMenuItems,
@@ -15,8 +16,8 @@ import {
   createMenuItem,
   updateMenuItem,
   deleteMenuItem,
-} from "../../redux/slices/menuSlice";
-
+} from "../../redux/slices/menuAdminSlice";
+import MenuDetailModal from "../../components/AdminMenu/MenuDetailModal";
 const emptyForm = {
   name: "",
   description: "",
@@ -33,15 +34,29 @@ const ManageMenu = () => {
   const isDark = theme === "dark";
   const dispatch = useDispatch();
 
-  const { items, restaurants, categories, loading, submitting, fetchingSingle } =
-    useSelector((state) => state.menu);
+  const {
+    items,
+    restaurants,
+    categories,
+    loading,
+    submitting,
+    fetchingSingle,
+  } = useSelector((state) => state.menuAdmin);
 
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
   const [formData, setFormData] = useState(emptyForm);
 
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+
   useEffect(() => {
+    console.log("ManageMenu mounted");
+
     dispatch(fetchMenuItems());
     dispatch(fetchRestaurants());
     dispatch(fetchCategories());
@@ -57,6 +72,22 @@ const ManageMenu = () => {
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
+  };
+
+  const openViewModal = async (item) => {
+    const result = await dispatch(fetchMenuItemById(item.id));
+
+    if (fetchMenuItemById.fulfilled.match(result)) {
+      setSelectedItem(result.payload);
+      setShowViewModal(true);
+    } else {
+      alert("Failed to load item details.");
+    }
+  };
+
+  const closeViewModal = () => {
+    setShowViewModal(false);
+    setSelectedItem(null);
   };
 
   // ============ ADD MODAL KHOLNA ============
@@ -105,7 +136,9 @@ const ManageMenu = () => {
     e.preventDefault();
 
     if (isEditing) {
-      const result = await dispatch(updateMenuItem({ id: editId, formValues: formData }));
+      const result = await dispatch(
+        updateMenuItem({ id: editId, formValues: formData }),
+      );
       if (updateMenuItem.fulfilled.match(result)) {
         closeModal();
       } else {
@@ -123,15 +156,25 @@ const ManageMenu = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    const confirmed = window.confirm("Are you sure you want to delete this item?");
-    if (!confirmed) return;
+  const handleDelete = (id) => {
+    setDeleteId(id);
+    setShowDeleteModal(true);
+  };
 
-    const result = await dispatch(deleteMenuItem(id));
+  const confirmDelete = async () => {
+    const result = await dispatch(deleteMenuItem(deleteId));
+
     if (!deleteMenuItem.fulfilled.match(result)) {
       console.error("Delete failed:", result.payload);
       alert("Failed to delete item.");
     }
+
+    setShowDeleteModal(false);
+    setDeleteId(null);
+  };
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setDeleteId(null);
   };
 
   return (
@@ -208,6 +251,17 @@ const ManageMenu = () => {
                     </td>
                     <td className="py-3">
                       <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => openViewModal(item)}
+                          className={`p-2 rounded-full transition-colors ${
+                            isDark
+                              ? "hover:bg-white/10 text-gray-300"
+                              : "hover:bg-gray-100 text-gray-600"
+                          }`}
+                        >
+                          <HiOutlineEye className="w-4 h-4" />
+                        </button>
+
                         <button
                           onClick={() => openEditModal(item)}
                           className={`p-2 rounded-full transition-colors duration-200 ${
@@ -321,7 +375,9 @@ const ManageMenu = () => {
                   className="w-full text-sm"
                 />
                 {isEditing && (
-                  <p className={`text-xs ${isDark ? "text-gray-400" : "text-gray-500"}`}>
+                  <p
+                    className={`text-xs ${isDark ? "text-gray-400" : "text-gray-500"}`}
+                  >
                     Leave image empty to keep the current one
                   </p>
                 )}
@@ -352,13 +408,19 @@ const ManageMenu = () => {
                     disabled={submitting}
                     className="flex-1 bg-[#FC8A06] hover:bg-orange-600 disabled:opacity-60 text-white text-sm font-semibold py-2.5 rounded-full transition-colors duration-200"
                   >
-                    {submitting ? "Saving..." : isEditing ? "Update Item" : "Add Item"}
+                    {submitting
+                      ? "Saving..."
+                      : isEditing
+                        ? "Update Item"
+                        : "Add Item"}
                   </button>
                   <button
                     type="button"
                     onClick={closeModal}
                     className={`px-5 py-2.5 rounded-full text-sm font-semibold border ${
-                      isDark ? "border-white/20 text-gray-300" : "border-gray-300 text-gray-700"
+                      isDark
+                        ? "border-white/20 text-gray-300"
+                        : "border-gray-300 text-gray-700"
                     }`}
                   >
                     Cancel
@@ -368,6 +430,54 @@ const ManageMenu = () => {
             )}
           </div>
         </div>
+      )}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div
+            className={`w-full max-w-md rounded-2xl p-6 shadow-xl ${
+              isDark ? "bg-[#0b1020]" : "bg-white"
+            }`}
+          >
+            <h2
+              className={`text-xl font-bold mb-3 ${
+                isDark ? "text-white" : "text-gray-900"
+              }`}
+            >
+              Delete Menu Item
+            </h2>
+
+            <p className={isDark ? "text-gray-300" : "text-gray-600"}>
+              Are you sure you want to delete this menu item?
+            </p>
+
+            <p className="text-red-500 text-sm mt-2">
+              This action cannot be undone.
+            </p>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={cancelDelete}
+                className={`px-5 py-2 rounded-full border ${
+                  isDark
+                    ? "border-white/20 text-white"
+                    : "border-gray-300 text-gray-700"
+                }`}
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={confirmDelete}
+                className="px-5 py-2 rounded-full bg-red-600 hover:bg-red-700 text-white"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showViewModal && (
+        <MenuDetailModal item={selectedItem} onClose={closeViewModal} />
       )}
     </div>
   );

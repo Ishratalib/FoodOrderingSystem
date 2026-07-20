@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useTheme } from "../../context/ThemeContext";
 import { HiOutlineTrendingUp } from "react-icons/hi";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchRevenueOverTime } from "../../redux/slices/revenueOverTimeSlice";
+import { fetchRevenueOverTime } from "../../redux/slices/adminAnalyticsSlice";
 
 import {
   ResponsiveContainer,
@@ -22,10 +22,18 @@ const RevenueOverTime = () => {
 
   const [range, setRange] = useState("daily");
 
-  const { revenue } = useSelector((state) => state.revenueOverTime);
+  const { revenueOverTime, revenueLoading, revenueError } = useSelector((state) => state.adminAnalytics);
+
+  if (revenueLoading) {
+    return <p className="text-center mt-4">Loading revenue records...</p>;
+  }
+
+  if (revenueError) {
+    return <p className="text-center mt-4 text-red-500">{revenueError}</p>;
+  }
 
   const chartData =
-    revenue?.map((item) => ({
+    revenueOverTime?.map((item) => ({
       period: item.period,
       revenue: item.total_revenue,
     })) || [];
@@ -60,7 +68,7 @@ const RevenueOverTime = () => {
         {/* Tabs */}
 
         <div className="flex gap-5">
-          {["daily", "monthly", "yearly"].map((item) => (
+          {["daily"].map((item) => (
             <button
               key={item}
               onClick={() => {

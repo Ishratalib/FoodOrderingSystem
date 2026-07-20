@@ -7,18 +7,18 @@ const PopularDeals = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const { popularDeals, loading, error } = useSelector(
-    (state) => state.popularDeals
+  const { popularDeals, dealsLoading, dealsError } = useSelector(
+    (state) => state.adminAnalytics
   );
 
-  if (loading) {
+  if (dealsLoading) {
     return <p className="text-center mt-4">Loading Popular Deals...</p>;
   }
 
-  if (error) {
+  if (dealsError) {
     return (
       <p className="text-center mt-4 text-red-500">
-        {error}
+        {dealsError}
       </p>
     );
   }

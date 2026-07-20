@@ -20,16 +20,16 @@ const RevenueByRestaurant = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const { revenueByRestaurant, loading, error } = useSelector(
-    (state) => state.revenueByRestaurant,
+  const { revenueByRestaurant, revenueRestaurantLoading, revenueRestaurantError } = useSelector(
+    (state) => state.adminAnalytics,
   );
 
-  if (loading) {
+  if (revenueRestaurantLoading) {
     return <p className="text-center mt-4">Loading Revenue...</p>;
   }
 
-  if (error) {
-    return <p className="text-center mt-4 text-red-500">{error}</p>;
+  if (revenueRestaurantError) {
+    return <p className="text-center mt-4 text-red-500">{revenueRestaurantError}</p>;
   }
 
   const chartData =

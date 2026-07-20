@@ -4,7 +4,9 @@ import { useTheme } from "../../context/ThemeContext";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "../../redux/slices/authSlice";
 import { useNavigate } from "react-router-dom";
+import useToast from "../../hooks/useToast";
 const Signup = () => {
+  const toast = useToast();
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -20,25 +22,32 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [signupError, setSignupError] = useState("");
+  // const [signupError, setSignupError] = useState("");
 
   const { loading, error } = useSelector((state) => state.auth);
-  useEffect(() => {
-    if (error) {
-      const message =
-        typeof error === "string"
-          ? error
-          : error.error || "Registration Failed";
+  // useEffect(() => {
+  //   if (error) {
+  //     let message = "Registration Failed";
 
-      setSignupError(message);
+  //     if (typeof error === "string") {
+  //       message = error;
+  //     } else if (error?.error?.email) {
+  //       message = error.error.email;
+  //     } else if (error?.error?.username) {
+  //       message = error.error.username;
+  //     } else if (error?.error) {
+  //       message = JSON.stringify(error.error);
+  //     }
 
-      const timer = setTimeout(() => {
-        setSignupError("");
-      }, 3000);
+  //     setSignupError(message);
 
-      return () => clearTimeout(timer);
-    }
-  }, [error]);
+  //     const timer = setTimeout(() => {
+  //       setSignupError("");
+  //     }, 3000);
+
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [error]);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -103,15 +112,15 @@ const Signup = () => {
       // TODO (backend integration):
       // dispatch(registerUser(payload)) -> authSlice async thunk
       // on success -> auto-login or redirect to /login
-     const result = await dispatch(registerUser(payload)).unwrap();
-      if(result.data.is_admin){
+      const result = await dispatch(registerUser(payload)).unwrap();
+      toast.success(result.message);
+      if (result.data.is_admin) {
         navigate("/admin");
-      }
-      else{
+      } else {
         navigate("/");
       }
     } catch (error) {
-      console.log("Error:", error);
+      toast.error(error.error.email || "Registration Failed");
     }
   };
 
@@ -323,11 +332,6 @@ const Signup = () => {
             )}
           </div>
 
-          {signupError && (
-            <p className="text-red-500 text-sm text-center mb-4">
-              {signupError}
-            </p>
-          )}
           {/* Submit */}
           <button
             type="submit"
