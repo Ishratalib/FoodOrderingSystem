@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchAllDeals } from "../../redux/slices/dealSlice";
 import DealCard from "./DealCard";
 import NextPage from "../../assets/images/NextPage.png";
+import { BASE_URL } from "../../api/api";
 
 function ExclusiveDeals() {
   const [activeTab, setActiveTab] = useState("All");
@@ -119,7 +120,7 @@ lg:overflow-visible
       "
           >
             <DealCard
-              image={deal.image ? `http://127.0.0.1:8000${deal.image}` : null}
+              image={deal.image ? `${BASE_URL}${deal.image}` : null}
               discount={deal.is_featured ? "Featured" : "Deal"}
               name={deal.name}
             />

@@ -1,6 +1,7 @@
 import { HiArrowRight } from "react-icons/hi";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../../api/api";
 
 function SimilarDeals() {
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ function SimilarDeals() {
                 <img
                   src={
                     deal.image
-                      ? `http://127.0.0.1:8000${deal.image}`
+                      ? `${BASE_URL}${deal.image}`
                       : "https://via.placeholder.com/400x300?text=Deal"
                   }
                   alt={deal.name}

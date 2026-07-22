@@ -1,6 +1,7 @@
 import { useSelector } from "react-redux";
 import cart from "../../assets/icons/shoppingCart.png";
 import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../../api/api";
 
 function DealGallery() {
   const navigate = useNavigate();
@@ -8,7 +9,7 @@ function DealGallery() {
   const { deal: dealDetail } = useSelector((state) => state.deal);
 
   const image = dealDetail?.image
-    ? `http://127.0.0.1:8000${dealDetail.image}`
+    ? `${BASE_URL}${dealDetail.image}`
     : null;
 
   return (

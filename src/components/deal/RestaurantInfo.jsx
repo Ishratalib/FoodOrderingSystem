@@ -5,6 +5,7 @@ import {
   HiClock,
   HiStar,
 } from "react-icons/hi";
+import { BASE_URL } from "../../api/api";
 
 function RestaurantInfo() {
   const { deal } = useSelector((state) => state.deal);
@@ -12,7 +13,7 @@ function RestaurantInfo() {
   const restaurant = deal?.items?.[0]?.menu_item?.restaurant;
 
   const image = restaurant?.image
-    ? `http://127.0.0.1:8000${restaurant.image}`
+    ? `${BASE_URL}${restaurant.image}`
     : null;
 
   return (
