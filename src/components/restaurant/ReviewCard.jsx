@@ -1,5 +1,5 @@
 import Star from "../../assets/images/Star.png";
-import Clock from "../../assets/images/Clock.png";
+import Clock from "../../assets/images/clock.png";
 
 function ReviewCard({ name, city, review, date }) {
   return (
