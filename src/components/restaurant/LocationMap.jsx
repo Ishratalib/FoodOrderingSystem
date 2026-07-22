@@ -1,6 +1,6 @@
 import React from "react";
 import previousLocationIcon from "../../assets/images/previous-location.png";
-import ellipseIcon from "../../assets/images/ellipse.png";
+import ellipseIcon from "../../assets/images/Ellipse.png";
 
 const RestaurantLocation = ({
   name = "McDonald's",
