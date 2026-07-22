@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useTheme } from "../../context/ThemeContext";
 
 import { Package } from "lucide-react";
-import OrderSearch from "../../components/adminOrders/OrderSearch";
+import OrderSearch from "../../components/adminOrders/orderSearch";
 import OrdersTable from "../../components/adminOrders/OrdersTable";
 import useDebounce from "../../hooks/useDebounce";
 import OrderStatusFilter from "../../components/adminOrders/OrderStatusFilter";
@@ -18,33 +18,32 @@ const ManageOrders = () => {
 
   const { theme } = useTheme();
   const isDark = theme === "dark";
-const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const [search, setSearch] = useState("");
 
   const debouncedSearch = useDebounce(search, 500);
-const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("all");
   const { orders, loading, error, updatingOrderId } = useSelector(
-    (state) => state.orderAdmin
+    (state) => state.orderAdmin,
   );
 
   useEffect(() => {
     dispatch(fetchAllOrders());
   }, [dispatch]);
 
-const filteredOrders = orders.filter((order) => {
-  const keyword = debouncedSearch.toLowerCase();
+  const filteredOrders = orders.filter((order) => {
+    const keyword = debouncedSearch.toLowerCase();
 
-  const matchesSearch =
-    String(order.order_id).includes(keyword) ||
-    order.restaurant?.name?.toLowerCase().includes(keyword) ||
-    order.current_status?.toLowerCase().includes(keyword);
+    const matchesSearch =
+      String(order.order_id).includes(keyword) ||
+      order.restaurant?.name?.toLowerCase().includes(keyword) ||
+      order.current_status?.toLowerCase().includes(keyword);
 
-  const matchesStatus =
-    selectedStatus === "all" ||
-    order.current_status === selectedStatus;
+    const matchesStatus =
+      selectedStatus === "all" || order.current_status === selectedStatus;
 
-  return matchesSearch && matchesStatus;
-});
+    return matchesSearch && matchesStatus;
+  });
 
   const handleStatusChange = (orderId, status) => {
     dispatch(updateOrderStatus({ orderId, status }));
@@ -52,9 +51,7 @@ const filteredOrders = orders.filter((order) => {
 
   if (loading) {
     return (
-      <p className={isDark ? "text-white" : "text-gray-900"}>
-        Loading...
-      </p>
+      <p className={isDark ? "text-white" : "text-gray-900"}>Loading...</p>
     );
   }
 
@@ -86,22 +83,22 @@ const filteredOrders = orders.filter((order) => {
           <OrderSearch value={search} onChange={setSearch} />
         </div>
       </div>
-<OrderStatusFilter
-  selectedStatus={selectedStatus}
-  setSelectedStatus={setSelectedStatus}
-  orders={orders}
-/>
+      <OrderStatusFilter
+        selectedStatus={selectedStatus}
+        setSelectedStatus={setSelectedStatus}
+        orders={orders}
+      />
       {/* Orders Table */}
       <OrdersTable
         orders={filteredOrders}
         updatingOrderId={updatingOrderId}
         handleStatusChange={handleStatusChange}
-         onView={setSelectedOrder}
+        onView={setSelectedOrder}
       />
       <OrderDetailModal
-    order={selectedOrder}
-    onClose={() => setSelectedOrder(null)}
-/>
+        order={selectedOrder}
+        onClose={() => setSelectedOrder(null)}
+      />
     </div>
   );
 };
