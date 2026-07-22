@@ -1,10 +1,10 @@
 import Logo from "../../assets/logos/Logo.png";
 import AppStore from "../../assets/images/AppStore.png";
 import PlayStore from "../../assets/images/PlayStore.png";
-import Facebook from "../../assets/Icons/Facebook.png";
-import Instagram from "../../assets/Icons/Instagram.png";
-import TikTok from "../../assets/Icons/TikTok.png";
-import Snapchat from "../../assets/Icons/Snapchat.png";
+import Facebook from "../../assets/icons/Facebook.png";
+import Instagram from "../../assets/icons/Instagram.png";
+import TikTok from "../../assets/icons/TikTok.png";
+import Snapchat from "../../assets/icons/Snapchat.png";
 
 const appStores = [
   { id: 1, image: AppStore, alt: "App Store", link: "#" },
